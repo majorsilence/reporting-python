@@ -29,8 +29,9 @@ from majorsilence_reporting import load_bundled_library
 from majorsilence_reporting.report_native import load_library, Report
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-DB_PATH     = os.environ.get('DB_PATH',     '/path/to/sqlitetestdb2.db')
-REPORT_PATH = os.environ.get('REPORT_PATH', '/path/to/Orders.rdl')
+_here = os.path.dirname(os.path.abspath(__file__))
+DB_PATH     = os.environ.get('DB_PATH',     os.path.join(_here, 'sqlitetestdb2.db'))
+REPORT_PATH = os.environ.get('REPORT_PATH', os.path.join(_here, 'Orders.rdl'))
 # ──────────────────────────────────────────────────────────────────────────────
 
 output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')

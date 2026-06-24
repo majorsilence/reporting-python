@@ -31,7 +31,8 @@ from majorsilence_reporting import load_bundled_library
 from majorsilence_reporting.report_native import load_library, Report
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-REPORT_PATH = os.environ.get('REPORT_PATH', '/path/to/SalesReport.rdl')
+_here = os.path.dirname(os.path.abspath(__file__))
+REPORT_PATH = os.environ.get('REPORT_PATH', os.path.join(_here, 'SalesReport.rdl'))
 # ──────────────────────────────────────────────────────────────────────────────
 
 output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')

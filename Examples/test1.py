@@ -23,9 +23,10 @@ import os
 from majorsilence_reporting import Report
 
 # ── Configuration ─────────────────────────────────────────────────────────────
+_here = os.path.dirname(os.path.abspath(__file__))
 RDLCMD_PATH = os.environ.get('RDLCMD_PATH', '/path/to/RdlCmd')
-DB_PATH     = os.environ.get('DB_PATH',     '/path/to/northwindEF.db')
-REPORT_PATH = os.environ.get('REPORT_PATH', '/path/to/SimpleTest1.rdl')
+DB_PATH     = os.environ.get('DB_PATH',     os.path.join(_here, 'northwindEF.db'))
+REPORT_PATH = os.environ.get('REPORT_PATH', os.path.join(_here, 'SimpleTest1.rdl'))
 # ──────────────────────────────────────────────────────────────────────────────
 
 output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
