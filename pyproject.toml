@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "majorsilence-reporting"
-version = "1.0.0"
+version = "26.0.0"
 description = "Python bindings for Majorsilence Reporting — render RDL reports to PDF, Excel, HTML and more via an in-process native library or subprocess runner"
 readme = "README.md"
 license = { text = "MIT OR Apache-2.0 OR BSD-2-Clause" }
