@@ -1,5 +1,11 @@
 # Majorsilence Reporting — Python Wrappers
 
+Python bindings for [Majorsilence Reporting](https://github.com/majorsilence/Reporting) — a .NET RDL report engine. Renders RDL reports to PDF, Excel, CSV, HTML, RTF, TIFF, and more via an in-process native library (no .NET runtime required) or a subprocess-based .NET runner.
+
+Platform-specific wheels bundle the prebuilt `rdlnative` shared library for Linux x64/arm64, Windows x64, and macOS arm64. On other platforms, point `load_library()` at your own build of rdlnative.
+
+---
+
 Three wrappers are provided for generating reports from Python. Pick the one that matches how you deploy the reporting engine:
 
 | Wrapper | Mechanism | Requires |
