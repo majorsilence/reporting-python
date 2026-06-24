@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #
 # Export a report to multiple formats using the in-process native library.
 # No subprocess is spawned; no .NET runtime is required.
 #
 # Install:
-#   python -m venv .venv
+#   python3 -m venv .venv
 #   source .venv/bin/activate        # Linux/macOS
 #   .venv\Scripts\activate           # Windows
 #   pip install majorsilence-reporting
@@ -22,7 +22,7 @@
 # Run:
 #   DB_PATH=/path/to/sqlitetestdb2.db \
 #   REPORT_PATH=/path/to/Orders.rdl \
-#   python test4-export-multiple-formats.py
+#   python3 test4-export-multiple-formats.py
 
 import os
 from majorsilence_reporting import load_bundled_library

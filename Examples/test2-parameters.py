@@ -1,9 +1,9 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #
 # Report parameters example using the subprocess runner.
 #
 # Install:
-#   python -m venv .venv
+#   python3 -m venv .venv
 #   source .venv/bin/activate        # Linux/macOS
 #   .venv\Scripts\activate           # Windows
 #   pip install majorsilence-reporting
@@ -17,7 +17,7 @@
 #   RDLCMD_PATH=/path/to/RdlCmd \
 #   DB_PATH=/path/to/northwindEF.db \
 #   REPORT_PATH=/path/to/SimpleTest3WithParameters.rdl \
-#   python test2-parameters.py
+#   python3 test2-parameters.py
 
 import os
 from majorsilence_reporting import Report

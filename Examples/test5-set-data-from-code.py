@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #
 # Feed data directly into a report from Python — no database required.
 # Uses the in-process native library (no subprocess, no .NET runtime).
 #
 # Install:
-#   python -m venv .venv
+#   python3 -m venv .venv
 #   source .venv/bin/activate        # Linux/macOS
 #   .venv\Scripts\activate           # Windows
 #   pip install majorsilence-reporting
@@ -21,7 +21,7 @@
 #
 # Run:
 #   REPORT_PATH=/path/to/SalesReport.rdl \
-#   python test5-set-data-from-code.py
+#   python3 test5-set-data-from-code.py
 #
 # Note: dict keys must exactly match the <Field Name="..."> values in the RDL.
 # No connection string is needed — SkipDatabaseSchemaValidation is set automatically.

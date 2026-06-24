@@ -5,8 +5,8 @@ Loads the Majorsilence Reporting engine in-process via ctypes — no subprocess
 is spawned, no .NET runtime is required on the host.
 
 Platform-specific library filenames:
-  Linux:   librdlnative.so
-  macOS:   librdlnative.dylib
+  Linux:   rdlnative.so  (librdlnative.so also accepted)
+  macOS:   rdlnative.dylib  (librdlnative.dylib also accepted)
   Windows: rdlnative.dll
 
 Usage:
@@ -115,20 +115,22 @@ def load_bundled_library() -> ctypes.CDLL:
     native_dir = os.path.join(os.path.dirname(__file__), "native")
     system = platform.system()
     if system == "Linux":
-        lib_name = "librdlnative.so"
+        candidates = ["rdlnative.so", "librdlnative.so"]
     elif system == "Darwin":
-        lib_name = "librdlnative.dylib"
+        candidates = ["rdlnative.dylib", "librdlnative.dylib"]
     elif system == "Windows":
-        lib_name = "rdlnative.dll"
+        candidates = ["rdlnative.dll"]
     else:
         raise RuntimeError(f"Unsupported platform: {system}")
-    lib_path = os.path.join(native_dir, lib_name)
-    if not os.path.exists(lib_path):
-        raise FileNotFoundError(
-            f"No bundled native library found at {lib_path}. "
-            "Install the platform-specific wheel or call load_library() with an explicit path."
-        )
-    return load_library(lib_path)
+    for lib_name in candidates:
+        lib_path = os.path.join(native_dir, lib_name)
+        if os.path.exists(lib_path):
+            return load_library(lib_path)
+    raise FileNotFoundError(
+        f"No bundled native library found in {native_dir} "
+        f"(tried: {', '.join(candidates)}). "
+        "Install the platform-specific wheel or call load_library() with an explicit path."
+    )
 
 
 VALID_TYPES = frozenset({"pdf", "csv", "xlsx", "xlsx_table", "xml", "rtf", "tif", "tifb", "html", "mht"})
