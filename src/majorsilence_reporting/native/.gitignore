@@ -1,0 +1,4 @@
+# Native libraries are downloaded during CI — do not commit them.
+*
+!.gitkeep
+!.gitignore

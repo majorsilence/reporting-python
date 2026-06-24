@@ -15,5 +15,8 @@ dev = ["pytest>=8.0"]
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"majorsilence_reporting" = ["native/*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -105,6 +105,32 @@ def load_library(lib_path: str) -> ctypes.CDLL:
     return lib
 
 
+def load_bundled_library() -> ctypes.CDLL:
+    """
+    Load the rdlnative library that was bundled with this wheel at install time.
+
+    Raises FileNotFoundError on a pure-Python (no-natives) install.  In that
+    case call load_library() with the path to your own copy of rdlnative.
+    """
+    native_dir = os.path.join(os.path.dirname(__file__), "native")
+    system = platform.system()
+    if system == "Linux":
+        lib_name = "librdlnative.so"
+    elif system == "Darwin":
+        lib_name = "librdlnative.dylib"
+    elif system == "Windows":
+        lib_name = "rdlnative.dll"
+    else:
+        raise RuntimeError(f"Unsupported platform: {system}")
+    lib_path = os.path.join(native_dir, lib_name)
+    if not os.path.exists(lib_path):
+        raise FileNotFoundError(
+            f"No bundled native library found at {lib_path}. "
+            "Install the platform-specific wheel or call load_library() with an explicit path."
+        )
+    return load_library(lib_path)
+
+
 VALID_TYPES = frozenset({"pdf", "csv", "xlsx", "xlsx_table", "xml", "rtf", "tif", "tifb", "html", "mht"})
 
 
