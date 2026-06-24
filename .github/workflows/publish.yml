@@ -74,10 +74,15 @@ jobs:
           mkdir -p src/majorsilence_reporting/native
           mkdir -p /tmp/rdlnative/unpacked
           ASSET=$(ls /tmp/rdlnative/*.zip | head -1)
+          echo "Extracting: $ASSET"
           unzip "$ASSET" -d /tmp/rdlnative/unpacked
-          # Copy every file found (handles flat or single-subdir zip layouts)
-          find /tmp/rdlnative/unpacked -maxdepth 3 -type f \
+          echo "--- zip contents ---"
+          find /tmp/rdlnative/unpacked -type f
+          echo "--- copying ---"
+          find /tmp/rdlnative/unpacked -type f \
             -exec cp -v {} src/majorsilence_reporting/native/ \;
+          echo "--- native/ after copy ---"
+          ls -lh src/majorsilence_reporting/native/
 
       - name: Build wheel
         run: python -m build --wheel --outdir dist/
@@ -90,6 +95,9 @@ jobs:
             --platform-tag "${{ matrix.platform_tag }}" \
             --remove \
             dist/*.whl
+
+      - name: Verify wheel contains native libs
+        run: python -m zipfile -l dist/*.whl | grep native/
 
       - uses: actions/upload-artifact@v4
         with:

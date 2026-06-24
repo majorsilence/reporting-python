@@ -37,6 +37,9 @@ Issues     = "https://github.com/majorsilence/reporting-python/issues"
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
 
+[tool.setuptools]
+include-package-data = false
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
