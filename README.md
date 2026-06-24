@@ -6,6 +6,36 @@ Platform-specific wheels bundle the prebuilt `rdlnative` shared library for Linu
 
 ---
 
+## Quick Start
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install majorsilence-reporting
+```
+
+```python
+from majorsilence_reporting import load_bundled_library
+from majorsilence_reporting.report_native import Report
+
+lib = load_bundled_library()
+rpt = Report(lib, "/path/to/report.rdl")
+rpt.set_connection_string("Data Source=/path/to/database.db")
+rpt.set_parameter("Country", "Germany")
+
+# Export to file
+rpt.export("pdf", "/path/to/output.pdf")
+
+# Or export to bytes for HTTP streaming (Flask, Django, FastAPI, …)
+data = rpt.export_to_memory("pdf")
+```
+
+**Platform-specific wheels** bundle the prebuilt `rdlnative` shared library — no extra downloads on Linux x64/arm64, Windows x64, or macOS arm64.
+
+---
+
+## Wrappers
+
 Three wrappers are provided for generating reports from Python. Pick the one that matches how you deploy the reporting engine:
 
 | Wrapper | Mechanism | Requires |

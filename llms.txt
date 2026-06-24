@@ -1,0 +1,127 @@
+# majorsilence-reporting
+
+> Python library for generating reports (PDF, Excel, CSV, HTML, RTF, TIFF, and more)
+> from RDL report definitions. Wraps the Majorsilence Reporting .NET engine.
+> No .NET runtime required when using the bundled native library wheel.
+
+## When to use this library
+
+Use `majorsilence-reporting` when you need to:
+- Generate PDF, Excel, or other formatted reports from Python
+- Render RDL (Report Definition Language) report files
+- Produce reports without a .NET runtime on the host (use the native wheel)
+- Stream report output as bytes for HTTP responses (Flask, Django, FastAPI, etc.)
+- Supply data entirely from Python code — no database connection required
+
+## Installation
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install majorsilence-reporting
+```
+
+Platform-specific wheels bundle the prebuilt `rdlnative` shared library:
+- Linux x64 / arm64
+- Windows x64
+- macOS arm64
+
+On supported platforms `pip install` is all that is needed — no extra downloads.
+
+## Three usage modes
+
+### 1. Native in-process (recommended — no .NET runtime, lowest overhead)
+
+```python
+from majorsilence_reporting import load_bundled_library
+from majorsilence_reporting.report_native import Report
+
+lib = load_bundled_library()          # uses the library bundled in the wheel
+rpt = Report(lib, "/path/to/report.rdl")
+rpt.set_connection_string("Data Source=/path/to/database.db")
+rpt.set_parameter("Country", "Germany")
+
+rpt.export("pdf", "/path/to/output.pdf")   # save to file
+data = rpt.export_to_memory("pdf")          # returns bytes (for HTTP streaming)
+```
+
+### 2. AOT / self-contained subprocess (no .NET runtime required)
+
+```python
+from majorsilence_reporting import ReportAot
+
+rpt = ReportAot("/path/to/report.rdl", "/path/to/RdlCmd")
+rpt.set_connection_string("Data Source=/path/to/database.db")
+rpt.export("pdf", "/path/to/output.pdf")
+```
+
+### 3. .NET runtime subprocess
+
+```python
+from majorsilence_reporting import Report
+
+rpt = Report("/path/to/report.rdl", "/path/to/RdlCmd.dll", path_to_dotnet="dotnet")
+rpt.set_connection_string("Data Source=/path/to/database.db")
+rpt.export("pdf", "/path/to/output.pdf")
+```
+
+## Supplying data from Python (no database needed)
+
+```python
+lib = load_bundled_library()
+rpt = Report(lib, "/path/to/report.rdl")
+rpt.add_data("DataSetName", [
+    {"Product": "Widget A", "Amount": "1250.00"},
+    {"Product": "Widget B", "Amount":  "980.50"},
+])
+data = rpt.export_to_memory("pdf")
+```
+
+Dict keys must exactly match `<Field Name="...">` values in the RDL file.
+No connection string needed — `SkipDatabaseSchemaValidation` is set automatically.
+
+## Supported export formats
+
+| Format string | Output |
+|---|---|
+| `pdf` | PDF (default) |
+| `xlsx` | Excel workbook |
+| `xlsx_table` | Excel workbook (table style) |
+| `csv` | Comma-separated values |
+| `html` | HTML |
+| `mht` | MHTML |
+| `rtf` | Rich Text Format |
+| `xml` | XML |
+| `tif` | TIFF image |
+| `tifb` | TIFF image (black & white) |
+
+## Key API reference
+
+### `load_bundled_library() -> ctypes.CDLL`
+Loads the rdlnative shared library bundled in the platform wheel. Call once per process.
+Raises `FileNotFoundError` if no bundled library is present (pure-Python install).
+
+### `load_library(lib_path: str) -> ctypes.CDLL`
+Loads rdlnative from an explicit file path. Use when bundled library is unavailable.
+
+### `report_native.Report(lib, report_path)`
+In-process report renderer. Methods:
+- `set_parameter(name, value)` — set a report parameter
+- `set_connection_string(connection_string)` — override the RDL connection string
+- `add_data(dataset_name, rows)` — supply in-memory data (list of dicts)
+- `export(format, output_path)` — render to file
+- `export_to_memory(format) -> bytes` — render to bytes (no temp file)
+
+### `ReportAot(report_path, rdl_cmd_path)`
+Subprocess runner for AOT/self-contained RdlCmd binaries.
+Same `set_parameter`, `set_connection_string`, `export`, `export_to_memory` interface.
+
+### `Report(report_path, rdl_cmd_path, path_to_dotnet=None)`
+Subprocess runner requiring a .NET runtime.
+Same interface as `ReportAot`.
+
+## Resources
+
+- RDL report files and sample databases: https://github.com/majorsilence/Reporting/tree/master/Examples
+- Native binary releases: https://github.com/majorsilence/Reporting/releases
+- Source for these Python bindings: https://github.com/majorsilence/reporting-python

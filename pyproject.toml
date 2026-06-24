@@ -9,6 +9,30 @@ description = "Python bindings for Majorsilence Reporting — render RDL reports
 readme = "README.md"
 license = { text = "MIT OR Apache-2.0 OR BSD-2-Clause" }
 requires-python = ">=3.10"
+keywords = [
+  "reporting", "rdl", "pdf", "excel", "csv", "html", "report generation",
+  "data export", "business intelligence", "dotnet", "native", "ctypes",
+  "pdf generation", "spreadsheet", "tiff", "rtf",
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Topic :: Office/Business",
+  "Topic :: Office/Business :: Financial :: Spreadsheet",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Printing",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage   = "https://github.com/majorsilence/Reporting"
+Source     = "https://github.com/majorsilence/reporting-python"
+Issues     = "https://github.com/majorsilence/reporting-python/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
