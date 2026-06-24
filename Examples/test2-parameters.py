@@ -1,43 +1,39 @@
 #! /usr/bin/env python
+#
+# Report parameters example using the subprocess runner.
+#
+# Install:
+#   python -m venv .venv
+#   source .venv/bin/activate        # Linux/macOS
+#   .venv\Scripts\activate           # Windows
+#   pip install majorsilence-reporting
+#
+# Download RdlCmd from https://github.com/majorsilence/Reporting/releases
+#   Linux/macOS : *-rdlcmd-aot-linux-x64.zip or *-rdlcmd-aot-osx.zip
+#   Windows     : *-rdlcmd-aot-windows.zip
+# Extract and set RDLCMD_PATH to the RdlCmd (or RdlCmd.exe) binary.
+#
+# Run:
+#   RDLCMD_PATH=/path/to/RdlCmd \
+#   DB_PATH=/path/to/northwindEF.db \
+#   REPORT_PATH=/path/to/SimpleTest3WithParameters.rdl \
+#   python test2-parameters.py
 
-import sys
 import os
-import platform
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from majorsilence_reporting import Report
 
+# ── Configuration ─────────────────────────────────────────────────────────────
+RDLCMD_PATH = os.environ.get('RDLCMD_PATH', '/path/to/RdlCmd')
+DB_PATH     = os.environ.get('DB_PATH',     '/path/to/northwindEF.db')
+REPORT_PATH = os.environ.get('REPORT_PATH', '/path/to/SimpleTest3WithParameters.rdl')
+# ──────────────────────────────────────────────────────────────────────────────
 
-# SETUP
-current_directory = os.path.dirname(os.path.abspath(__file__))
-base_directory = os.path.join(current_directory, '..', '..', '..')
-base_directory = os.path.abspath(base_directory)
+output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
+os.makedirs(output_dir, exist_ok=True)
 
-db_path = os.path.join(current_directory, '..', '..', '..', 'Examples', 'northwindEF.db')
-db_path = os.path.abspath(db_path)
-report_path = os.path.join(current_directory, '..', '..', '..', 'Examples', 'SqliteExamples', 'SimpleTest3WithParameters.rdl')
-report_path = os.path.abspath(report_path)
-
-if platform.system() == 'Windows':
-    # if self hosted or on windows we do not need to set the path to dotnet, rdlcmd can be run directly
-    path_to_dotnet = None
-    path_to_rdlcmd = os.path.join(base_directory, "RdlCmd\\bin\\Debug\\net8.0\\RdlCmd.exe") 
-else:
-    # dotnet is required to run rdlcmd
-    path_to_dotnet= "dotnet"
-    path_to_rdlcmd = os.path.join(base_directory, "RdlCmd/bin/Debug/net8.0/RdlCmd.dll") 
-
-path_to_rdlcmd = os.path.abspath(path_to_rdlcmd)
-
-output_directory = os.path.join(current_directory, 'output')
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
-
-# REPORT EXAMPLE
-
-rpt = Report(report_path, path_to_rdlcmd, path_to_dotnet)
-rpt.set_parameter("TestParam1", 'I am a parameter value.')
-rpt.set_parameter("TestParam2", 'The second parameter.')
-rpt.set_connection_string('Data Source=' + db_path)
-rpt.export("pdf", os.path.join(output_directory, 'test2-parameters.pdf'))
-
+rpt = Report(REPORT_PATH, RDLCMD_PATH)
+rpt.set_connection_string('Data Source=' + DB_PATH)
+rpt.set_parameter('TestParam1', 'I am a parameter value.')
+rpt.set_parameter('TestParam2', 'The second parameter.')
+rpt.export('pdf', os.path.join(output_dir, 'test2-parameters.pdf'))
+print('Written: output/test2-parameters.pdf')

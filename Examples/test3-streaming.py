@@ -1,38 +1,39 @@
 #! /usr/bin/env python
+#
+# Export to memory (bytes) for streaming HTTP responses.
+#
+# Install:
+#   python -m venv .venv
+#   source .venv/bin/activate        # Linux/macOS
+#   .venv\Scripts\activate           # Windows
+#   pip install majorsilence-reporting
+#
+# Download RdlCmd from https://github.com/majorsilence/Reporting/releases
+#   Linux/macOS : *-rdlcmd-aot-linux-x64.zip or *-rdlcmd-aot-osx.zip
+#   Windows     : *-rdlcmd-aot-windows.zip
+# Extract and set RDLCMD_PATH to the RdlCmd (or RdlCmd.exe) binary.
+#
+# Run:
+#   RDLCMD_PATH=/path/to/RdlCmd \
+#   DB_PATH=/path/to/northwindEF.db \
+#   REPORT_PATH=/path/to/SimpleTest1.rdl \
+#   python test3-streaming.py
 
-import sys
 import os
-import platform
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from majorsilence_reporting import Report
 
-# SETUP
-current_directory = os.path.dirname(os.path.abspath(__file__))
-base_directory = os.path.join(current_directory, '..', '..', '..')
-base_directory = os.path.abspath(base_directory)
-db_path = os.path.join(current_directory, '..', '..', '..', 'Examples', 'northwindEF.db')
-db_path = os.path.abspath(db_path)
+# ── Configuration ─────────────────────────────────────────────────────────────
+RDLCMD_PATH = os.environ.get('RDLCMD_PATH', '/path/to/RdlCmd')
+DB_PATH     = os.environ.get('DB_PATH',     '/path/to/northwindEF.db')
+REPORT_PATH = os.environ.get('REPORT_PATH', '/path/to/SimpleTest1.rdl')
+# ──────────────────────────────────────────────────────────────────────────────
 
-report_path = os.path.join(current_directory, '..', '..', '..', 'Examples', 'SqliteExamples', 'SimpleTest1.rdl')
+rpt = Report(REPORT_PATH, RDLCMD_PATH)
+rpt.set_connection_string('Data Source=' + DB_PATH)
+data = rpt.export_to_memory('pdf')
 
-if platform.system() == 'Windows':
-    # if self hosted or on windows we do not need to set the path to dotnet, rdlcmd can be run directly
-    path_to_dotnet = None
-    path_to_rdlcmd = os.path.join(base_directory, "RdlCmd\\bin\\Debug\\net8.0\\RdlCmd.exe") 
-else:
-    # dotnet is required to run rdlcmd
-    path_to_dotnet= "dotnet"
-    path_to_rdlcmd = os.path.join(base_directory, "RdlCmd/bin/Debug/net8.0/RdlCmd.dll") 
-
-path_to_rdlcmd = os.path.abspath(path_to_rdlcmd)
-
-# REPORT EXAMPLE
-
-rpt = Report(report_path, path_to_rdlcmd, path_to_dotnet)
-rpt.set_connection_string('Data Source=' + db_path)
-data = rpt.export_to_memory("pdf")
-
-print(data)
-
-# This is where you output data on your site using wsgi, cgi, or whatever python framework/library you are using
+# data is bytes — pass directly to your HTTP response:
+#   Flask  : return Response(data, mimetype='application/pdf')
+#   Django : return HttpResponse(data, content_type='application/pdf')
+#   WSGI   : start_response('200 OK', [('Content-Type', 'application/pdf')]); yield data
+print(f'Rendered {len(data):,} bytes')

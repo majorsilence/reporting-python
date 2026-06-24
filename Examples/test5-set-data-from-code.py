@@ -1,49 +1,47 @@
 #! /usr/bin/env python
 #
-# SetDataFromCode — feed data directly into a report with no database at all,
-# using the rdlnative in-process library.
+# Feed data directly into a report from Python — no database required.
+# Uses the in-process native library (no subprocess, no .NET runtime).
 #
-# Build the native library first:
-#   dotnet publish RdlNative/Majorsilence.Reporting.RdlNative.csproj \
-#       -p:PublishAot=true -o /tmp/rdlnative-pub
+# Install:
+#   python -m venv .venv
+#   source .venv/bin/activate        # Linux/macOS
+#   .venv\Scripts\activate           # Windows
+#   pip install majorsilence-reporting
+#
+# The platform-specific wheel (Linux x64/arm64, Windows x64, macOS arm64)
+# bundles rdlnative and load_bundled_library() finds it automatically.
+#
+# On an unsupported platform, download rdlnative manually from
+# https://github.com/majorsilence/Reporting/releases (*-rdlnative-*.zip),
+# extract it, and set RDLNATIVE_LIB to the shared library path:
+#   Linux   : RDLNATIVE_LIB=/path/to/librdlnative.so
+#   macOS   : RDLNATIVE_LIB=/path/to/librdlnative.dylib
+#   Windows : RDLNATIVE_LIB=C:\path\to\rdlnative.dll
 #
 # Run:
-#   RDLNATIVE_LIB=/tmp/rdlnative-pub/librdlnative.so python test5-set-data-from-code.py
+#   REPORT_PATH=/path/to/SalesReport.rdl \
+#   python test5-set-data-from-code.py
 #
-# Key patterns shown:
-#   - add_data() injects rows from any Python data source (list, API response, etc.)
-#   - Dict keys must exactly match the <Field Name="..."> values in the RDL
-#   - No connection string is needed — SkipDatabaseSchemaValidation is set automatically
-#
-# Output: sales-report.pdf in the output directory
+# Note: dict keys must exactly match the <Field Name="..."> values in the RDL.
+# No connection string is needed — SkipDatabaseSchemaValidation is set automatically.
 
-import sys
 import os
-import platform
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+from majorsilence_reporting import load_bundled_library
 from majorsilence_reporting.report_native import load_library, Report
 
-# SETUP
-current_directory = os.path.dirname(os.path.abspath(__file__))
-base_directory = os.path.abspath(os.path.join(current_directory, '..', '..', '..'))
+# ── Configuration ─────────────────────────────────────────────────────────────
+REPORT_PATH = os.environ.get('REPORT_PATH', '/path/to/SalesReport.rdl')
+# ──────────────────────────────────────────────────────────────────────────────
 
-report_path = os.path.abspath(os.path.join(base_directory, 'Examples', 'SetDataFromCode', 'SalesReport.rdl'))
+output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
+os.makedirs(output_dir, exist_ok=True)
 
-if platform.system() == 'Windows':
-    lib_name = 'rdlnative.dll'
-elif platform.system() == 'Darwin':
-    lib_name = 'librdlnative.dylib'
+# Use the library bundled with the platform wheel; fall back to a manual path.
+if 'RDLNATIVE_LIB' in os.environ:
+    lib = load_library(os.environ['RDLNATIVE_LIB'])
 else:
-    lib_name = 'librdlnative.so'
-
-lib_path = os.environ.get(
-    'RDLNATIVE_LIB',
-    os.path.join(base_directory, 'RdlNative', 'bin', 'Release', 'net10.0', lib_name),
-)
-
-output_directory = os.path.join(current_directory, 'output')
-os.makedirs(output_directory, exist_ok=True)
+    lib = load_bundled_library()
 
 # DATA — keys must match <Field Name="..."> in SalesReport.rdl exactly
 sales_data = [
@@ -66,14 +64,12 @@ sales_data = [
     {'Product': 'Carnarvon Tigers',       'Region': 'Asia Pacific',  'Amount': '6200.00', 'Quantity': '31'},
     {'Product': 'Teatime Biscuits',       'Region': 'Europe',        'Amount':  '291.60', 'Quantity': '36'},
     {'Product': "Sir Rodney's Marmalade", 'Region': 'Europe',        'Amount': '1245.00', 'Quantity': '45'},
-    {'Product': "Sir Rodney's Scones",    'Region': 'Europe',        'Amount':  '350.00', 'Quantity': '50'},
+    {"Product": "Sir Rodney's Scones",    'Region': 'Europe',        'Amount':  '350.00', 'Quantity': '50'},
 ]
 
-# REPORT EXAMPLE
-lib = load_library(lib_path)
-rpt = Report(lib, report_path)
+rpt = Report(lib, REPORT_PATH)
 rpt.add_data('Data', sales_data)
 
-out_path = os.path.join(output_directory, 'sales-report.pdf')
+out_path = os.path.join(output_dir, 'sales-report.pdf')
 rpt.export('pdf', out_path)
-print(f'Written: {out_path}')
+print('Written: output/sales-report.pdf')
