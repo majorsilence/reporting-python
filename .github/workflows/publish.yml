@@ -32,7 +32,7 @@ jobs:
           - platform_tag: manylinux_2_17_aarch64
             asset_pattern: '*-majorsilence-reporting-rdlnative-linux-arm64.zip'
           - platform_tag: win_amd64
-            asset_pattern: '*-majorsilence-reporting-rdlnative-windows-amd64.zip'
+            asset_pattern: '*-majorsilence-reporting-rdlnative-windows-x64.zip'
           - platform_tag: macosx_11_0_arm64
             asset_pattern: '*-majorsilence-reporting-rdlnative-osx.zip'
 
