@@ -4,6 +4,8 @@ Python bindings for [Majorsilence Reporting](https://github.com/majorsilence/Rep
 
 Platform-specific wheels bundle the prebuilt `rdlnative` shared library for Linux x64/arm64, Windows x64, and macOS arm64. On other platforms, point `load_library()` at your own build of rdlnative.
 
+Published on [PyPI](https://pypi.org/project/majorsilence-reporting/).
+
 ---
 
 ## Quick Start
