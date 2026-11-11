@@ -174,6 +174,9 @@ class Report:
         SkipDatabaseSchemaValidation is set automatically when dataset rows are
         present, so no DB connection is needed at parse or render time.
 
+        Note: rdlnative 27+ ignores a dataset whose ``rows`` list is empty, so
+        the report's own query runs instead.  Pass at least one row to inject.
+
         Example::
 
             rpt.add_data("Data", [

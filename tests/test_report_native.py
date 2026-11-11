@@ -211,10 +211,18 @@ class TestAddData(unittest.TestCase):
             self.assertIn(row["Product"], text)
 
     def test_empty_dataset_does_not_crash(self):
+        # rdlnative 27+ ignores datasets with zero rows, so the report's own
+        # SQL query runs (and fails here: SalesReport.rdl has no database).
+        # Older engines inject the empty table and render a PDF.  Either
+        # outcome is fine; what must not happen is a crash.
         rpt = Report(_get_lib(), SALES_RDL_PATH)
         rpt.add_data("Data", [])
-        data = rpt.export_to_memory("pdf")
-        self.assertEqual(data[:4], b"%PDF")
+        try:
+            data = rpt.export_to_memory("pdf")
+        except RuntimeError as exc:
+            self.assertIn("rdl_report_render", str(exc))
+        else:
+            self.assertEqual(data[:4], b"%PDF")
 
 
 if __name__ == "__main__":
